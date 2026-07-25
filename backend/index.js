@@ -12,21 +12,32 @@ const {revertRepo} = require('./controllers/revert');
 
 yargs(hideBin(process.argv))
   .command("init", "Purpose: Initialize a new repository", {}, initRepo)
-  .command("add <file>", "Purpose: Add a file", (yargs) => {
-    yargs.positional("file", {
+  .command("add <file>", 
+    "Purpose: Add a file", 
+    (yargs) => { yargs.positional("file", {
         describe: "File to add to the staging area",
         type: "String",
     });
   }, addRepo)
-  .command("commit <message>", "Purpose: Commit changes", (yargs) => {
-    yargs.positional("message", {
+  .command("commit <message>", 
+    "Purpose: Commit changes", 
+    (yargs) => {yargs.positional("message", {
         describe: "Commit message",
         type: "String",
     });
   }, commitRepo)
+
   .command("push", "Purpose: Push changes to remote repository", {}, pushRepo)
+
   .command("pull", "Purpose: Pull changes from remote repository", {}, pullRepo)
-  .command("revert", "Purpose: Revert changes", {}, revertRepo)
+
+  .command("revert <commitID> ", 
+    "Purpose: Revert changes", 
+    (yargs) => {yargs.positional("commitID", {
+        describe: "ID of the commit to revert",
+        type: "String",
+    });
+  }, revertRepo)
   .demandCommand(1, "Enter a command")
   .help()
   .parse();
