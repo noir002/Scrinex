@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Scrinex</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #14151a;
+    --surface: #1c1e26;
+    --surface-2: #23252f;
+    --border: #2c2f3a;
+    --text: #e9e7e0;
+    --muted: #888c99;
+    --accent: #e8a33d;
+    --accent-dim: #4a3a20;
+    --added: #6fcf97;
+    --modified: #e8a33d;
+    --deleted: #e2685a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  header .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+  header h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+  header span.tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 60px);
+  }
+  @media (max-width: 720px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.sidebar {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      overflow-x: auto;
+    }
+    nav.sidebar .repo-item { flex: 0 0 auto; border-bottom: none; }
+  }
+  nav.sidebar {
+    border-right: 1px solid var(--border);
+    padding: 12px;
+  }
+  nav.sidebar .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 10px;
+  }
+  .repo-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .repo-item:hover { background: var(--surface); color: var(--text); }
+  .repo-item.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  main { padding: 24px 32px; }
+  .empty-state {
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 60px;
+    text-align: center;
+  }
+  .repo-title { font-size: 22px; font-weight: 600; margin: 0 0 2px 0; }
+  .repo-meta { color: var(--muted); font-size: 13px; font-family: 'JetBrains Mono', monospace; margin-bottom: 24px; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  .panel h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin: 0 0 12px 0;
+  }
+  .file-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .badge.added, .badge.a { background: rgba(111,207,151,0.15); color: var(--added); }
+  .badge.modified, .badge.m { background: rgba(232,163,61,0.15); color: var(--modified); }
+  .badge.deleted, .badge.d { background: rgba(226,104,90,0.15); color: var(--deleted); }
+  .muted-note { color: var(--muted); font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+
+  .timeline { position: relative; padding-left: 20px; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 5px; top: 4px; bottom: 4px;
+    width: 2px;
+    background: var(--border);
+  }
+  .commit {
+    position: relative;
+    padding-bottom: 22px;
+  }
+  .commit:last-child { padding-bottom: 0; }
+  .commit::before {
+    content: "";
+    position: absolute;
+    left: -19px; top: 4px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+  }
+  .commit-hash {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: var(--surface-2);
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-right: 8px;
+  }
+  .commit-message { font-weight: 500; font-size: 14px; }
+  .commit-meta { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .commit-files { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .commit-files span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface-2);
+    padding: 1px 7px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="dot"></div>
+    <h1>SCRINEX</h1>
+    <span class="tag">nex push mirror</span>
+  </header>
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="label">Repositories</div>
+      <div id="repo-list"></div>
+    </nav>
+    <main id="main-panel">
+      <div class="empty-state">Run <code>nex init &lt;name&gt;</code> to register your first repo.</div>
+    </main>
+  </div>
+
+<script>
+  const API = window.location.origin + "/api";
+  let repos = [];
+  let selectedId = new URLSearchParams(window.location.search).get("repo");
+
+  async function fetchRepos() {
+    const res = await fetch(`${API}/repos`);
+    repos = await res.json();
+    renderSidebar();
+    if (!selectedId && repos.length) selectedId = repos[0].id;
+    if (selectedId) renderMain(selectedId);
+  }
+
+  function renderSidebar() {
+    const list = document.getElementById("repo-list");
+    list.innerHTML = "";
+    repos
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .forEach((repo) => {
+        const item = document.createElement("div");
+        item.className = "repo-item" + (repo.id === selectedId ? " active" : "");
+        item.textContent = repo.name;
+        item.onclick = () => { selectedId = repo.id; renderSidebar(); renderMain(repo.id); };
+        list.appendChild(item);
+      });
+  }
+
+  function badgeClass(status) {
+    const s = (status || "").toLowerCase();
+    if (s.startsWith("a")) return "added";
+    if (s.startsWith("d")) return "deleted";
+    return "modified";
+  }
+
+  function renderMain(id) {
+    const repo = repos.find((r) => r.id === id);
+    const main = document.getElementById("main-panel");
+    if (!repo) {
+      main.innerHTML = `<div class="empty-state">Repo not found.</div>`;
+      return;
+    }
+
+    const stagedHtml = repo.staged.length
+      ? repo.staged.map(f => `
+          <div class="file-row">
+            <span class="badge ${badgeClass(f.status)}">${f.status}</span>
+            <span>${f.path}</span>
+          </div>`).join("")
+      : `<div class="muted-note">Nothing staged. Run "nex add &lt;files&gt;".</div>`;
+
+    const commitsHtml = repo.commits.length
+      ? `<div class="timeline">` + repo.commits.map(c => `
+          <div class="commit">
+            <div><span class="commit-hash">${c.hash.slice(0,7)}</span><span class="commit-message">${escapeHtml(c.message)}</span></div>
+            <div class="commit-meta">${c.author || "unknown"} · ${new Date(c.timestamp).toLocaleString()}</div>
+            <div class="commit-files">
+              ${c.files.map(f => `<span>${f.status} ${f.path}</span>`).join("")}
+            </div>
+          </div>`).join("") + `</div>`
+      : `<div class="muted-note">No commits yet. Run "nex commit -m ...".</div>`;
+
+    main.innerHTML = `
+      <div class="repo-title">${repo.name}</div>
+      <div class="repo-meta">created ${new Date(repo.createdAt).toLocaleString()}</div>
+      <div class="panel">
+        <h2>Staged changes</h2>
+        ${stagedHtml}
+      </div>
+      <div class="panel">
+        <h2>Commit history</h2>
+        ${commitsHtml}
+      </div>
+    `;
+  }
+
+  function escapeHtml(str) {
+    return (str || "").replace(/[&<>"']/g, (m) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[m]));
+  }
+
+  fetchRepos();
+  setInterval(fetchRepos, 3000); // poll for "live" updates on add/commit
+</script>
+</body>
+</html>

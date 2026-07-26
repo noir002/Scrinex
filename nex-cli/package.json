@@ -1,0 +1,14 @@
+{
+  "name": "nex-cli",
+  "version": "0.1.0",
+  "description": "nex - a git wrapper CLI that mirrors your commits to Scrinex",
+  "bin": {
+    "nex": "./bin/nex.js"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "simple-git": "^3.25.0",
+    "node-fetch": "^2.7.0"
+  }
+}

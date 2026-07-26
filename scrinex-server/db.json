@@ -1,0 +1,78 @@
+{
+  "repos": {
+    "d6bd5a20-ed80-4ce3-98e5-b1c4bd5b3e86": {
+      "id": "d6bd5a20-ed80-4ce3-98e5-b1c4bd5b3e86",
+      "name": "my-first-repo",
+      "createdAt": "2026-07-26T08:59:32.097Z",
+      "staged": [],
+      "commits": [
+        {
+          "hash": "1e6fd06884050c4380052293a349c48430672f97",
+          "message": "Initial commit",
+          "author": "noir@002",
+          "timestamp": "2026-07-26T14:29:32+05:30",
+          "files": []
+        }
+      ],
+      "updatedAt": "2026-07-26T08:59:32.611Z"
+    },
+    "85b3c053-3649-4f4e-a583-c1a302572f38": {
+      "id": "85b3c053-3649-4f4e-a583-c1a302572f38",
+      "name": "cppRepo",
+      "createdAt": "2026-07-26T09:02:14.523Z",
+      "staged": [],
+      "commits": []
+    },
+    "959100be-6e30-4491-8fca-cce8476af20f": {
+      "id": "959100be-6e30-4491-8fca-cce8476af20f",
+      "name": "cpp",
+      "createdAt": "2026-07-26T09:04:43.375Z",
+      "staged": [],
+      "commits": []
+    },
+    "e4e2336c-2c22-4434-b198-58d1aa1aad55": {
+      "id": "e4e2336c-2c22-4434-b198-58d1aa1aad55",
+      "name": "cpp",
+      "createdAt": "2026-07-26T09:04:57.262Z",
+      "staged": [],
+      "commits": [
+        {
+          "hash": "b0bfb8722e424cc10aa3286526e2dddd1e54abd3",
+          "message": "file one updated",
+          "author": "noir@002",
+          "timestamp": "2026-07-26T14:37:51+05:30",
+          "files": [
+            {
+              "path": "one.cpp",
+              "status": "M"
+            }
+          ]
+        },
+        {
+          "hash": "6fa65918aa0f199d5e9ee591c836852d08130638",
+          "message": "cpp files added",
+          "author": "noir@002",
+          "timestamp": "2026-07-26T14:36:05+05:30",
+          "files": []
+        }
+      ],
+      "updatedAt": "2026-07-26T09:07:51.399Z"
+    },
+    "a8fc56d5-c229-438f-b869-dc5b7b684b6e": {
+      "id": "a8fc56d5-c229-438f-b869-dc5b7b684b6e",
+      "name": "taskFolder",
+      "createdAt": "2026-07-26T09:16:34.343Z",
+      "staged": [],
+      "commits": [
+        {
+          "hash": "724ad7d7ebff80b8a4ad83d850a0663052ba2dee",
+          "message": " Updated one",
+          "author": "noir@002",
+          "timestamp": "2026-07-26T14:47:24+05:30",
+          "files": []
+        }
+      ],
+      "updatedAt": "2026-07-26T09:17:24.937Z"
+    }
+  }
+}
