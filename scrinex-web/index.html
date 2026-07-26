@@ -183,6 +183,46 @@
     padding: 1px 7px;
     border-radius: 4px;
   }
+
+  .toggle-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid var(--accent-dim);
+    padding: 3px 9px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .toggle-btn:hover { background: var(--accent-dim); }
+
+  .diff-view {
+    margin-top: 10px;
+    background: #101116;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow-x: auto;
+    max-height: 420px;
+    overflow-y: auto;
+  }
+  .diff-view pre {
+    margin: 0;
+    padding: 10px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .diff-line {
+    padding: 0 14px;
+    white-space: pre;
+  }
+  .diff-line.add { background: rgba(111,207,151,0.08); color: var(--added); }
+  .diff-line.del { background: rgba(226,104,90,0.08); color: var(--deleted); }
+  .diff-line.hunk { color: var(--accent); opacity: 0.85; margin: 4px 0; }
+  .diff-line.meta { color: var(--muted); opacity: 0.7; }
+  .diff-line.ctx { color: var(--text); opacity: 0.65; }
+  .diff-empty { padding: 14px; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
 </style>
 </head>
 <body>
@@ -205,6 +245,7 @@
   const API = window.location.origin + "/api";
   let repos = [];
   let selectedId = new URLSearchParams(window.location.search).get("repo");
+  const openDiffs = new Set(); // ids of diff panels currently expanded, survives poll re-renders
 
   async function fetchRepos() {
     const res = await fetch(`${API}/repos`);
@@ -249,17 +290,24 @@
             <span class="badge ${badgeClass(f.status)}">${f.status}</span>
             <span>${f.path}</span>
           </div>`).join("")
+        + `<button class="toggle-btn" onclick="toggleDiff('staged-diff')">View code</button>
+           <div id="staged-diff" style="display:${openDiffs.has('staged-diff') ? 'block' : 'none'}">${renderDiff(repo.stagedDiff)}</div>`
       : `<div class="muted-note">Nothing staged. Run "nex add &lt;files&gt;".</div>`;
 
     const commitsHtml = repo.commits.length
-      ? `<div class="timeline">` + repo.commits.map(c => `
+      ? `<div class="timeline">` + repo.commits.map((c, i) => {
+          const diffId = `commit-diff-${i}`;
+          return `
           <div class="commit">
             <div><span class="commit-hash">${c.hash.slice(0,7)}</span><span class="commit-message">${escapeHtml(c.message)}</span></div>
             <div class="commit-meta">${c.author || "unknown"} · ${new Date(c.timestamp).toLocaleString()}</div>
             <div class="commit-files">
               ${c.files.map(f => `<span>${f.status} ${f.path}</span>`).join("")}
             </div>
-          </div>`).join("") + `</div>`
+            <button class="toggle-btn" onclick="toggleDiff('${diffId}')">View code</button>
+            <div id="${diffId}" style="display:${openDiffs.has(diffId) ? 'block' : 'none'}">${renderDiff(c.patch)}</div>
+          </div>`;
+        }).join("") + `</div>`
       : `<div class="muted-note">No commits yet. Run "nex commit -m ...".</div>`;
 
     main.innerHTML = `
@@ -274,6 +322,30 @@
         ${commitsHtml}
       </div>
     `;
+  }
+
+  function renderDiff(diffText) {
+    if (!diffText || !diffText.trim()) {
+      return `<div class="diff-empty">No code changes captured.</div>`;
+    }
+    const lines = diffText.split("\n").map((line) => {
+      let cls = "ctx";
+      if (line.startsWith("+++") || line.startsWith("---")) cls = "meta";
+      else if (line.startsWith("@@")) cls = "hunk";
+      else if (line.startsWith("diff --git") || line.startsWith("index ")) cls = "meta";
+      else if (line.startsWith("+")) cls = "add";
+      else if (line.startsWith("-")) cls = "del";
+      return `<div class="diff-line ${cls}">${escapeHtml(line) || " "}</div>`;
+    });
+    return `<div class="diff-view"><pre>${lines.join("")}</pre></div>`;
+  }
+
+  function toggleDiff(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isOpen = el.style.display !== "none";
+    el.style.display = isOpen ? "none" : "block";
+    if (isOpen) openDiffs.delete(id); else openDiffs.add(id);
   }
 
   function escapeHtml(str) {

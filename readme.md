@@ -40,6 +40,12 @@ Refresh (or just wait ~3s — it polls) http://localhost:4000 and you'll see:
 - "file.txt" show up under Staged changes right after `nex add`
 - it move into the commit timeline right after `nex commit`, with the staged panel clearing (just like real git)
 
+### Viewing actual code changes
+
+Every "Staged changes" panel and every commit now has a **"View code"** button. Clicking it expands a real unified diff (green = added lines, red = removed lines, amber = hunk headers) — this is the actual `git diff --cached` output for staged changes, and the actual `git show <hash> -p` patch for a commit. So you're not just seeing *which* files changed, you're seeing *what* changed line by line, pulled straight from git.
+
+Try editing `file.txt` again and running `nex add file.txt` — you'll see the diff appear in Staged changes before you've even committed.
+
 ## Notes on scope (intentional, for a clean demo)
 - Storage is a flat `db.json` file, not a real database — swap for Postgres later if you want persistence beyond the demo.
 - `nex` doesn't reimplement git's network protocol — your actual code and history stay in real git, Scrinex only mirrors *metadata* (hash, message, changed files) for display.

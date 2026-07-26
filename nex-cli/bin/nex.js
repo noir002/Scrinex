@@ -59,8 +59,13 @@ program
       ...status.deleted.map((f) => ({ path: f, status: "deleted" })),
     ];
 
+    // Capture the actual content diff for everything currently staged,
+    // so the dashboard can show *what* changed, not just *which files*.
+    const diff = await git.diff(["--cached"]);
+
     await postJSON(`${config.server}/api/repos/${config.repoId}/staged`, {
       files: stagedFiles,
+      diff,
     });
     console.log(`✓ synced staged changes to Scrinex`);
   });
@@ -96,12 +101,17 @@ program
         return { path: filePath, status: statusCode };
       });
 
+    // Full unified diff for this commit - this is what lets Scrinex show
+    // the actual code that changed, not just filenames.
+    const patch = await git.raw(["show", latest.hash, "--format=", "-p"]);
+
     await postJSON(`${config.server}/api/repos/${config.repoId}/commits`, {
       hash: latest.hash,
       message: latest.message,
       author: latest.author_name,
       timestamp: latest.date,
       files,
+      patch,
     });
     console.log(`✓ pushed commit ${latest.hash.slice(0, 7)} to Scrinex`);
   });

@@ -66,6 +66,7 @@ app.post("/api/repos/:id/staged", (req, res) => {
   const repo = getRepoOr404(db, req.params.id, res);
   if (!repo) return;
   repo.staged = req.body.files || [];
+  repo.stagedDiff = req.body.diff || "";
   repo.updatedAt = new Date().toISOString();
   saveDB(db);
   res.json({ ok: true, staged: repo.staged });
@@ -81,6 +82,7 @@ app.post("/api/repos/:id/commits", (req, res) => {
     author: req.body.author,
     timestamp: req.body.timestamp,
     files: req.body.files || [],
+    patch: req.body.patch || "",
   };
   repo.commits.unshift(commit); // newest first
   repo.staged = []; // clear staging area after commit, like real git
