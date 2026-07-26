@@ -1,5 +1,6 @@
 # Dependencies
-backend/node_modules/
+nex-cli/node_modules/
+scrinex-server/node_modules/*
 
 # Environment variables
 .env
