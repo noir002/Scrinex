@@ -75,7 +75,31 @@
       "name": "scrinex",
       "createdAt": "2026-07-26T18:23:01.485Z",
       "staged": [],
-      "commits": []
+      "commits": [
+        {
+          "hash": "7ba2d75ba050aceb16c45ba61fb02223e0f612da",
+          "message": "This is a demo",
+          "author": "noir@002",
+          "timestamp": "2026-07-26T23:53:23+05:30",
+          "files": [
+            {
+              "path": ".nexconfig.json",
+              "status": "A"
+            },
+            {
+              "path": "demoProject",
+              "status": "A"
+            },
+            {
+              "path": "scrinex-server/db.json",
+              "status": "M"
+            }
+          ],
+          "patch": "diff --git a/.nexconfig.json b/.nexconfig.json\nnew file mode 100644\nindex 0000000..85f93eb\n--- /dev/null\n+++ b/.nexconfig.json\n@@ -0,0 +1,5 @@\n+{\n+  \"repoId\": \"6f88a374-5f07-43c4-979e-8c3592be3ed3\",\n+  \"repoName\": \"scrinex\",\n+  \"server\": \"http://localhost:4000\"\n+}\n\\ No newline at end of file\ndiff --git a/demoProject b/demoProject\nnew file mode 160000\nindex 0000000..ce4c3ea\n--- /dev/null\n+++ b/demoProject\n@@ -0,0 +1 @@\n+Subproject commit ce4c3ea40430cab5559bbbf010c31a8b8ea7ee5f\ndiff --git a/scrinex-server/db.json b/scrinex-server/db.json\nindex 5f94827..e28feaa 100644\n--- a/scrinex-server/db.json\n+++ b/scrinex-server/db.json\n@@ -69,6 +69,13 @@\n       ],\n       \"stagedDiff\": \"diff --git a/dp1/fileseven.txt b/dp1/fileseven.txt\\nnew file mode 100644\\nindex 0000000..7403a1e\\n--- /dev/null\\n+++ b/dp1/fileseven.txt\\n@@ -0,0 +1 @@\\n+Is this really empty file\\n\\\\ No newline at end of file\\n\",\n       \"updatedAt\": \"2026-07-26T18:20:15.570Z\"\n+    },\n+    \"6f88a374-5f07-43c4-979e-8c3592be3ed3\": {\n+      \"id\": \"6f88a374-5f07-43c4-979e-8c3592be3ed3\",\n+      \"name\": \"scrinex\",\n+      \"createdAt\": \"2026-07-26T18:23:01.485Z\",\n+      \"staged\": [],\n+      \"commits\": []\n     }\n   }\n }\n\\ No newline at end of file\n"
+        }
+      ],
+      "stagedDiff": "diff --git a/.nexconfig.json b/.nexconfig.json\nnew file mode 100644\nindex 0000000..85f93eb\n--- /dev/null\n+++ b/.nexconfig.json\n@@ -0,0 +1,5 @@\n+{\n+  \"repoId\": \"6f88a374-5f07-43c4-979e-8c3592be3ed3\",\n+  \"repoName\": \"scrinex\",\n+  \"server\": \"http://localhost:4000\"\n+}\n\\ No newline at end of file\ndiff --git a/demoProject b/demoProject\nnew file mode 160000\nindex 0000000..ce4c3ea\n--- /dev/null\n+++ b/demoProject\n@@ -0,0 +1 @@\n+Subproject commit ce4c3ea40430cab5559bbbf010c31a8b8ea7ee5f\ndiff --git a/scrinex-server/db.json b/scrinex-server/db.json\nindex 5f94827..e28feaa 100644\n--- a/scrinex-server/db.json\n+++ b/scrinex-server/db.json\n@@ -69,6 +69,13 @@\n       ],\n       \"stagedDiff\": \"diff --git a/dp1/fileseven.txt b/dp1/fileseven.txt\\nnew file mode 100644\\nindex 0000000..7403a1e\\n--- /dev/null\\n+++ b/dp1/fileseven.txt\\n@@ -0,0 +1 @@\\n+Is this really empty file\\n\\\\ No newline at end of file\\n\",\n       \"updatedAt\": \"2026-07-26T18:20:15.570Z\"\n+    },\n+    \"6f88a374-5f07-43c4-979e-8c3592be3ed3\": {\n+      \"id\": \"6f88a374-5f07-43c4-979e-8c3592be3ed3\",\n+      \"name\": \"scrinex\",\n+      \"createdAt\": \"2026-07-26T18:23:01.485Z\",\n+      \"staged\": [],\n+      \"commits\": []\n     }\n   }\n }\n\\ No newline at end of file\n",
+      "updatedAt": "2026-07-26T18:23:23.621Z"
     }
   }
 }
