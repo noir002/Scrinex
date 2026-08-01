@@ -1,57 +1,68 @@
-# Scrinex prototype
+# nex + Scrinex — a working Git-like VCS with a web portal
 
-A minimal "your own GitHub" demo:
-- `nex` — a CLI that wraps real `git` (init/add/commit) and reports each action to a backend
-- `scrinex-server` — Express API that stores repo/staged/commit state in `db.json`
-- `scrinex-web` — a single static dashboard page, served by the same backend, that polls and shows staged changes + commit history live
+Three pieces, one shared source of truth (the `.nexgit/` folder in your project):
 
-## 1. Start the backend (also serves the dashboard)
+- **`nex.py`** — the CLI (`nex init`, `add`, `commit`, `push`, `log`, `status`, `diff`, `branch`, `checkout`, `remote`)
+- **`pygit_core.py`** — the actual object model / repo logic, imported by both the CLI and the server
+- **`server.py`** + **`scrinex/index.html`** — a local API + web portal (Scrinex) that reads the same repo and renders a GitHub-style file browser, commit log, and diffs
 
-```
-cd scrinex-server
-npm install
-npm start
-```
+The CLI and the portal never talk to each other directly — the CLI writes to `.nexgit/`, and the portal just re-reads it on every request (it auto-refreshes every 4s). Run a command, refresh the page (or wait), see it reflected.
 
-Open http://localhost:4000 in a browser — this is your Scrinex dashboard. It'll be empty until you register a repo.
+## Quick start
 
-## 2. Install the CLI globally (from a second terminal)
+```bash
+# 1. Put nex.py, pygit_core.py, server.py, and scrinex/ in (or alongside) your project folder
+cd my-project
+cp /path/to/nex.py /path/to/pygit_core.py .
 
-```
-cd nex-cli
-npm install
-npm link
-```
+python3 nex.py init
+python3 nex.py add .
+python3 nex.py commit -m "initial commit"
 
-`npm link` makes the `nex` command available anywhere on your machine.
-
-## 3. Try it on a demo project
-
-```
-mkdir ~/demo-project && cd ~/demo-project
-nex init my-first-repo
-echo "hello world" > file.txt
-nex add file.txt
-nex commit -m "Initial commit"
+# edit some files, then:
+python3 nex.py status
+python3 nex.py diff
+python3 nex.py add .
+python3 nex.py commit -m "second commit"
 ```
 
-Refresh (or just wait ~3s — it polls) http://localhost:4000 and you'll see:
-- the repo appear in the sidebar
-- "file.txt" show up under Staged changes right after `nex add`
-- it move into the commit timeline right after `nex commit`, with the staged panel clearing (just like real git)
+Optionally make it feel like a real command:
+```bash
+chmod +x nex.py
+alias nex="python3 $(pwd)/nex.py"   # now: nex init, nex add ., nex commit -m "..."
+```
 
-### Viewing actual code changes
+## Push (to a local "remote")
 
-Every "Staged changes" panel and every commit now has a **"View code"** button. Clicking it expands a real unified diff (green = added lines, red = removed lines, amber = hunk headers) — this is the actual `git diff --cached` output for staged changes, and the actual `git show <hash> -p` patch for a commit. So you're not just seeing *which* files changed, you're seeing *what* changed line by line, pulled straight from git.
+There's no real network transport here — `push` targets a path on disk, standing in for a remote server the way a bare repo would. This is enough to demonstrate the push model (only-copy-missing-objects, update remote ref) without needing auth/networking:
 
-Try editing `file.txt` again and running `nex add file.txt` — you'll see the diff appear in Staged changes before you've even committed.
+```bash
+python3 nex.py remote add origin /some/other/folder
+python3 nex.py push origin main
+```
 
-## Notes on scope (intentional, for a clean demo)
-- Storage is a flat `db.json` file, not a real database — swap for Postgres later if you want persistence beyond the demo.
-- `nex` doesn't reimplement git's network protocol — your actual code and history stay in real git, Scrinex only mirrors *metadata* (hash, message, changed files) for display.
-- Dashboard updates via polling every 3s, not websockets — good enough to look "live" in a demo without extra infrastructure.
+## Run the Scrinex portal
 
-## Natural next steps
-- `nex push` — sync full commit history if commits were made with plain `git commit` instead of `nex commit`
-- A commit detail view showing actual diffs (the `diff` npm package, comparing file content between commits)
-- Swap `db.json` for Postgres if you want this to double as a backend/schema-design portfolio piece
+```bash
+cp -r /path/to/server.py /path/to/scrinex .
+python3 server.py . 8000
+```
+Then open **http://localhost:8000** — you'll see the file tree, commit history (click a commit for its diff), and a "Changes" tab mirroring `nex status`.
+
+`server.py` takes the repo path and port as args: `python3 server.py /path/to/repo 8000`.
+
+## What's implemented (the "basic/core" scope)
+
+- `init`, `add` (files or whole directories), `commit`, `status`, `diff` (staged vs HEAD), `log`
+- `branch`, `checkout` (create/switch)
+- `remote add`, `push` (local-path remote, object-copy based)
+- API: `/api/status`, `/api/tree`, `/api/file`, `/api/log`, `/api/branches`, `/api/commit/<hash>`, `/api/commit/<hash>/diff`, `/api/diff/working`, `/api/remotes`
+- Scrinex UI: file browser (click to view content), commit history (click for diff), live status/changes tab, auto-refresh
+
+## Known gaps (deliberately out of scope for this prototype)
+
+- No merge/conflict resolution — checkout just swaps the tree, no three-way merge
+- No `pull`/`fetch` yet (push is one-directional; add the mirror operation when you scale this up)
+- No auth on the API or the "remote" — anyone with API access can read everything; fine for local use, not for a real multi-user deployment
+- No `.gitignore` support — the whole directory gets staged on `add .`
+- Push is local-filesystem only, not a real network protocol — swapping in real transport (HTTP+auth) is the natural next step when you scale past prototype
