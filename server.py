@@ -22,6 +22,7 @@ from pygit_core import Repository, Commit
 
 REPO_PATH = sys.argv[1] if len(sys.argv) > 1 else "."
 PORT = int(sys.argv[2]) if len(sys.argv) > 2 else 8000
+LANDING_FILE = Path(__file__).parent / "scrinex" / "landing.html"
 FRONTEND_FILE = Path(__file__).parent / "scrinex" / "index.html"
 
 
@@ -71,7 +72,11 @@ class Handler(BaseHTTPRequestHandler):
         repo = Repository(REPO_PATH)
 
         try:
-            if route == "/" or route == "/index.html":
+            if route == "/" or route == "/index.html" or route == "/landing.html":
+                self._send_html(LANDING_FILE)
+                return
+
+            if route == "/app" or route == "/app.html" or route == "/repo":
                 self._send_html(FRONTEND_FILE)
                 return
 
