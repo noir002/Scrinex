@@ -5,135 +5,250 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scrinex</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#14161a; --panel:#1b1e23; --panel-2:#20242b; --border:#2b2f37;
-    --text:#e7e6e1; --text-dim:#9a9c9f; --text-faint:#63676d;
-    --moss:#8fbf5f; --moss-dim:#5f8a3c; --moss-glow:#c8e6a3;
-    --amber:#e0a955; --red:#e0715f; --blue:#6fa8dc;
+    --void:#0a0b0d;
+    --steel-1:#15171b; --steel-2:#1c1f24; --steel-3:#24282f;
+    --glass:rgba(198,206,214,0.055); --glass-hi:rgba(255,255,255,0.09);
+    --edge:rgba(210,218,226,0.14); --edge-soft:rgba(210,218,226,0.07);
+    --text:#e9ebee; --text-dim:#9aa0a8; --text-faint:#5c6169;
+    --chrome:#c7cdd4; --chrome-hi:#f2f4f6;
+    --accent:#7fd8d0; --accent-glow:#b8f2ea;
+    --amber:#e3b16a; --red:#e2857a; --add-bg:rgba(127,216,208,0.10); --del-bg:rgba(226,133,122,0.10);
     --mono:'JetBrains Mono', ui-monospace, monospace;
     --sans:'Inter', system-ui, sans-serif;
+    --disp:'Space Grotesk', var(--sans);
+    --r:12px;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;}
-  a{color:var(--blue);text-decoration:none;}
+  html,body{height:100%;}
+  body{
+    margin:0;color:var(--text);font-family:var(--sans);font-size:13.5px;
+    background:
+      radial-gradient(1100px 600px at 15% -10%, rgba(127,216,208,0.05), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(200,210,220,0.05), transparent 55%),
+      linear-gradient(160deg, #0c0d10 0%, #0a0b0d 45%, #0d0f12 100%);
+    min-height:100vh;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  ::selection{background:rgba(127,216,208,0.25);}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-thumb{background:var(--steel-3);border-radius:8px;border:2px solid transparent;background-clip:padding-box;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  .glass{
+    background:linear-gradient(180deg, var(--glass-hi), var(--glass));
+    backdrop-filter:blur(18px) saturate(140%);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    border:1px solid var(--edge);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 30px -14px rgba(0,0,0,0.6);
+  }
+  .brushed{
+    background-image:
+      repeating-linear-gradient(100deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 3px),
+      linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+  }
 
   .topbar{
-    display:flex;align-items:center;gap:16px;padding:14px 24px;
-    border-bottom:1px solid var(--border);background:var(--panel);
-    position:sticky;top:0;z-index:10;
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;gap:18px;padding:0 22px;height:60px;
+    border-bottom:1px solid var(--edge-soft);
   }
-  .logo{font-family:var(--mono);font-weight:600;font-size:17px;color:var(--moss-glow);letter-spacing:0.5px;}
-  .logo::before{content:"❯ ";color:var(--moss);}
+  .topbar.glass{border-radius:0;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(145deg, var(--chrome-hi), var(--chrome) 40%, #7c828a);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -2px 3px rgba(0,0,0,0.35), 0 4px 10px -4px rgba(0,0,0,0.6);
+    color:#14161a;font-family:var(--disp);font-weight:700;font-size:15px;
+  }
+  .brand-name{font-family:var(--disp);font-weight:600;font-size:16.5px;letter-spacing:0.2px;color:var(--chrome-hi);}
+  .breadcrumb{
+    display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;color:var(--text-faint);
+    padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--edge-soft);
+  }
+  .breadcrumb .sep{color:var(--text-faint);opacity:0.5;}
+  .breadcrumb .seg{color:var(--text-dim);}
+  .breadcrumb .seg.current{color:var(--accent-glow);}
+
   .branch-pill{
-    font-family:var(--mono);font-size:12px;background:var(--panel-2);
-    border:1px solid var(--border);border-radius:20px;padding:4px 12px;color:var(--text-dim);
-    display:flex;align-items:center;gap:6px;
+    font-family:var(--mono);font-size:12px;border-radius:20px;padding:6px 13px 6px 10px;color:var(--text);
+    display:flex;align-items:center;gap:7px;
   }
-  .branch-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--moss);}
+  .branch-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px 1px var(--accent);}
+
   .spacer{flex:1;}
-  .refresh-btn{
-    font-family:var(--sans);font-size:13px;background:transparent;color:var(--text-dim);
-    border:1px solid var(--border);border-radius:6px;padding:6px 12px;cursor:pointer;
+  .live-indicator{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:var(--text-faint);}
+  .live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(127,216,208,0.5);}50%{opacity:0.5;box-shadow:0 0 0 5px rgba(127,216,208,0);}}
+  .updated{font-size:11.5px;color:var(--text-faint);font-family:var(--mono);}
+
+  .icon-btn{
+    width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02));
+    border:1px solid var(--edge);color:var(--text-dim);cursor:pointer;font-size:14px;
+    transition:transform .15s ease, color .15s ease, border-color .15s ease;
   }
-  .refresh-btn:hover{border-color:var(--moss-dim);color:var(--text);}
-  .updated{font-size:12px;color:var(--text-faint);font-family:var(--mono);}
+  .icon-btn:hover{color:var(--accent-glow);border-color:rgba(127,216,208,0.4);transform:translateY(-1px);}
+  .icon-btn:active{transform:translateY(0);}
 
-  .layout{display:flex;min-height:calc(100vh - 53px);}
-  .sidebar{width:280px;border-right:1px solid var(--border);background:var(--panel);padding:16px 0;flex-shrink:0;}
-  .sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);padding:0 20px;margin:0 0 8px;font-weight:600;}
-  .tree{font-family:var(--mono);font-size:13px;}
-  .tree-node{padding:3px 20px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-dim);}
-  .tree-node:hover{background:var(--panel-2);color:var(--text);}
-  .tree-node.active{background:var(--panel-2);color:var(--moss-glow);}
-  .tree-node .icon{margin-right:6px;color:var(--text-faint);}
+  .layout{display:grid;grid-template-columns:262px 1fr 296px;gap:16px;padding:16px;align-items:start;}
+  @media (max-width:1180px){.layout{grid-template-columns:240px 1fr;} .rightcol{display:none;}}
+
+  .panel-title{
+    font-size:10.5px;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-faint);
+    padding:14px 16px 10px;font-weight:600;display:flex;align-items:center;justify-content:space-between;
+  }
+  .count-chip{font-family:var(--mono);background:rgba(255,255,255,0.05);border:1px solid var(--edge-soft);border-radius:20px;padding:1px 8px;font-size:10px;color:var(--text-dim);}
+
+  .sidebar{border-radius:var(--r);overflow:hidden;position:sticky;top:76px;}
+  .tree{font-family:var(--mono);font-size:12.6px;padding:2px 0 12px;}
+  .tree-node{
+    padding:5px 16px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    color:var(--text-dim);display:flex;align-items:center;gap:7px;border-left:2px solid transparent;
+  }
+  .tree-node:hover{background:rgba(255,255,255,0.035);color:var(--text);}
+  .tree-node.active{background:rgba(127,216,208,0.08);color:var(--accent-glow);border-left-color:var(--accent);}
+  .tree-node .icon{color:var(--text-faint);font-size:11px;width:12px;text-align:center;flex-shrink:0;}
   .tree-node.dir .icon{color:var(--amber);}
+  .tree-node .name{overflow:hidden;text-overflow:ellipsis;}
 
-  .main{flex:1;padding:24px 32px;min-width:0;}
-  .tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);}
-  .tab{padding:8px 16px;font-size:13px;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;font-weight:500;}
-  .tab.active{color:var(--moss-glow);border-bottom-color:var(--moss);}
-  .tab:hover{color:var(--text);}
+  .main{min-width:0;}
+  .tabs{display:inline-flex;gap:3px;margin-bottom:16px;padding:4px;border-radius:11px;}
+  .tab{
+    padding:8px 16px;font-size:12.5px;color:var(--text-dim);cursor:pointer;border-radius:8px;
+    font-weight:500;font-family:var(--sans);transition:all .15s ease;
+  }
+  .tab.active{color:var(--void);background:linear-gradient(180deg, var(--chrome-hi), var(--chrome));font-weight:600;}
+  .tab:not(.active):hover{color:var(--text);}
 
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
-  .panel-header{padding:12px 16px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:13px;color:var(--text-dim);display:flex;justify-content:space-between;}
-  pre.code{margin:0;padding:16px;overflow:auto;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text);}
+  .panel{border-radius:var(--r);overflow:hidden;margin-bottom:16px;}
+  .panel-header{
+    padding:12px 16px;border-bottom:1px solid var(--edge-soft);font-family:var(--mono);font-size:12.5px;
+    color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;
+    background:rgba(255,255,255,0.02);
+  }
+  .code-wrap{display:flex;overflow:auto;max-height:70vh;}
+  .code-gutter{padding:16px 0;text-align:right;color:var(--text-faint);font-family:var(--mono);font-size:12.5px;line-height:1.7;user-select:none;border-right:1px solid var(--edge-soft);background:rgba(255,255,255,0.015);}
+  .code-gutter span{display:block;padding:0 12px;}
+  pre.code{margin:0;padding:16px;overflow:visible;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--text);flex:1;}
 
-  .commit-row{padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;gap:12px;align-items:flex-start;}
+  .commit-row{padding:15px 16px;border-bottom:1px solid var(--edge-soft);cursor:pointer;display:flex;gap:13px;align-items:flex-start;position:relative;}
   .commit-row:last-child{border-bottom:none;}
-  .commit-row:hover{background:var(--panel-2);}
-  .commit-graph{width:14px;flex-shrink:0;display:flex;justify-content:center;padding-top:4px;}
-  .commit-graph .node{width:8px;height:8px;border-radius:50%;background:var(--moss);}
+  .commit-row:hover{background:rgba(255,255,255,0.03);}
+  .commit-graph{width:16px;flex-shrink:0;display:flex;justify-content:center;padding-top:5px;position:relative;}
+  .commit-graph .node{width:9px;height:9px;border-radius:50%;background:linear-gradient(145deg, var(--accent-glow), var(--accent));box-shadow:0 0 8px -1px var(--accent);position:relative;z-index:1;}
+  .commit-graph .line{position:absolute;top:14px;bottom:-15px;left:50%;width:1px;background:var(--edge);transform:translateX(-50%);}
+  .commit-row:last-child .line{display:none;}
   .commit-body{flex:1;min-width:0;}
-  .commit-msg{font-weight:500;color:var(--text);margin-bottom:4px;}
-  .commit-meta{font-family:var(--mono);font-size:12px;color:var(--text-faint);}
-  .commit-hash{color:var(--amber);}
+  .commit-msg{font-weight:500;color:var(--text);margin-bottom:4px;font-size:13.3px;}
+  .commit-meta{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);}
+  .commit-hash{color:var(--amber);background:rgba(227,177,106,0.1);padding:1px 6px;border-radius:5px;}
 
-  .status-group{margin-bottom:20px;}
-  .status-group h4{font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-faint);margin:0 0 8px;}
-  .status-item{font-family:var(--mono);font-size:13px;padding:5px 0;color:var(--text-dim);display:flex;gap:8px;}
-  .status-item .tag{width:64px;flex-shrink:0;font-size:11px;text-transform:uppercase;}
-  .tag.new{color:var(--moss);} .tag.modified{color:var(--amber);} .tag.untracked{color:var(--text-faint);} .tag.deleted{color:var(--red);}
-  .clean-msg{color:var(--text-faint);font-family:var(--mono);padding:8px 0;}
+  .status-group{margin-bottom:18px;}
+  .status-group h4{font-size:10.5px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-faint);margin:0 0 8px;font-weight:600;}
+  .status-item{font-family:var(--mono);font-size:12.5px;padding:6px 0;color:var(--text-dim);display:flex;gap:9px;align-items:center;}
+  .status-item .tag{width:66px;flex-shrink:0;font-size:10px;text-transform:uppercase;font-weight:600;letter-spacing:0.04em;padding:2px 0;}
+  .tag.new{color:var(--accent);} .tag.modified{color:var(--amber);} .tag.untracked{color:var(--text-faint);} .tag.deleted{color:var(--red);}
+  .clean-msg{color:var(--text-faint);font-family:var(--mono);padding:10px 0;display:flex;align-items:center;gap:8px;}
+  .clean-msg::before{content:"✓";color:var(--accent);}
 
-  .diff-line{white-space:pre;font-family:var(--mono);font-size:13px;line-height:1.6;padding:0 16px;}
-  .diff-add{background:rgba(143,191,95,0.12);color:var(--moss-glow);}
-  .diff-del{background:rgba(224,113,95,0.12);color:var(--red);}
-  .diff-hunk{color:var(--blue);opacity:0.8;}
-  .diff-file-header{padding:10px 16px;background:var(--panel-2);font-family:var(--mono);font-size:12px;color:var(--text-dim);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+  .diff-line{white-space:pre;font-family:var(--mono);font-size:12.5px;line-height:1.65;padding:0 16px;}
+  .diff-add{background:var(--add-bg);color:var(--accent-glow);}
+  .diff-del{background:var(--del-bg);color:var(--red);}
+  .diff-hunk{color:#8fb3e0;opacity:0.85;}
+  .diff-file-header{padding:10px 16px;background:rgba(255,255,255,0.03);font-family:var(--mono);font-size:11.8px;color:var(--text-dim);border-top:1px solid var(--edge-soft);border-bottom:1px solid var(--edge-soft);}
 
-  .empty-state{padding:60px 20px;text-align:center;color:var(--text-dim);}
-  .empty-state .logo{font-size:24px;display:block;margin-bottom:12px;}
-  .empty-state code{font-family:var(--mono);background:var(--panel-2);padding:2px 8px;border-radius:4px;color:var(--moss-glow);}
+  .rightcol{position:sticky;top:76px;display:flex;flex-direction:column;gap:16px;}
+  .card{border-radius:var(--r);padding:16px;}
+  .card h3{margin:0 0 12px;font-size:10.5px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-faint);font-weight:600;}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .stat{background:rgba(255,255,255,0.03);border:1px solid var(--edge-soft);border-radius:9px;padding:10px 12px;}
+  .stat .num{font-family:var(--disp);font-size:20px;font-weight:600;color:var(--chrome-hi);line-height:1;}
+  .stat .label{font-size:10px;color:var(--text-faint);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;}
+  .latest-commit{font-family:var(--mono);font-size:12px;}
+  .latest-commit .msg{color:var(--text);font-family:var(--sans);font-size:12.5px;margin-bottom:6px;line-height:1.4;}
+  .latest-commit .meta{color:var(--text-faint);}
+
+  .empty-state{padding:70px 20px;text-align:center;color:var(--text-dim);}
+  .empty-state .mark{width:52px;height:52px;border-radius:16px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg, var(--chrome-hi), var(--chrome) 45%, #7c828a);color:#14161a;font-family:var(--disp);font-weight:700;font-size:24px;box-shadow: inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -2px 3px rgba(0,0,0,0.35), 0 8px 24px -8px rgba(0,0,0,0.6);}
+  .empty-state h2{font-family:var(--disp);color:var(--chrome-hi);font-weight:600;margin:0 0 8px;}
+  .empty-state p{margin:6px 0;color:var(--text-dim);}
+  .empty-state code{font-family:var(--mono);background:rgba(255,255,255,0.06);border:1px solid var(--edge-soft);padding:2px 8px;border-radius:5px;color:var(--accent-glow);}
   .muted{color:var(--text-faint);}
 </style>
 </head>
 <body>
-  <div class="sr-only" style="position:absolute;left:-9999px;">Scrinex, a web portal for browsing a nex repository: file tree, commit history, and diffs.</div>
+  <div style="position:absolute;left:-9999px;">Scrinex, a metallic glass web portal for browsing a nex repository: file tree, commit history, and diffs.</div>
 
-  <div class="topbar">
-    <span class="logo">scrinex</span>
-    <span class="branch-pill" id="branchPill"><span class="dot"></span><span id="branchName">-</span></span>
+  <div class="topbar glass brushed">
+    <div class="brand">
+      <div class="brand-mark">❯</div>
+      <span class="brand-name">Scrinex</span>
+    </div>
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="seg">repository</span><span class="sep">/</span><span class="seg current" id="repoName">—</span>
+    </div>
+    <span class="branch-pill glass"><span class="dot"></span><span id="branchName">–</span></span>
     <span class="spacer"></span>
+    <span class="live-indicator"><span class="live-dot"></span>LIVE</span>
     <span class="updated" id="updatedAt"></span>
-    <button class="refresh-btn" onclick="refreshAll()">refresh</button>
+    <button class="icon-btn" onclick="refreshAll()" title="Refresh">⟳</button>
   </div>
 
   <div class="layout">
-    <div class="sidebar">
-      <h3>Files</h3>
+    <div class="sidebar glass">
+      <div class="panel-title">Files <span class="count-chip" id="fileCount">0</span></div>
       <div class="tree" id="fileTree"><div class="tree-node muted">loading…</div></div>
     </div>
+
     <div class="main">
-      <div class="tabs">
+      <div class="tabs glass">
         <div class="tab active" data-tab="code" onclick="switchTab('code')">Code</div>
         <div class="tab" data-tab="commits" onclick="switchTab('commits')">Commits</div>
         <div class="tab" data-tab="status" onclick="switchTab('status')">Changes</div>
       </div>
 
       <div id="view-code">
-        <div class="panel">
-          <div class="panel-header"><span id="codePath">select a file</span><span id="codeSize"></span></div>
-          <pre class="code" id="codeContent">Pick a file from the tree on the left.</pre>
+        <div class="panel glass">
+          <div class="panel-header"><span id="codePath">select a file</span><span id="codeSize" class="muted"></span></div>
+          <div class="code-wrap">
+            <div class="code-gutter" id="codeGutter"></div>
+            <pre class="code" id="codeContent">Pick a file from the tree on the left.</pre>
+          </div>
         </div>
       </div>
 
       <div id="view-commits" style="display:none;">
-        <div class="panel" id="commitList"></div>
-        <div style="height:20px;"></div>
-        <div class="panel" id="commitDiffPanel" style="display:none;"></div>
+        <div class="panel glass" id="commitList"></div>
+        <div class="panel glass" id="commitDiffPanel" style="display:none;"></div>
       </div>
 
       <div id="view-status" style="display:none;">
-        <div class="panel" style="padding:16px;" id="statusPanel"></div>
+        <div class="panel glass" style="padding:16px;" id="statusPanel"></div>
+      </div>
+    </div>
+
+    <div class="rightcol">
+      <div class="card glass">
+        <h3>Overview</h3>
+        <div class="stat-grid">
+          <div class="stat"><div class="num" id="statFiles">0</div><div class="label">Files</div></div>
+          <div class="stat"><div class="num" id="statCommits">0</div><div class="label">Commits</div></div>
+          <div class="stat"><div class="num" id="statBranches">0</div><div class="label">Branches</div></div>
+          <div class="stat"><div class="num" id="statChanges">0</div><div class="label">Changes</div></div>
+        </div>
+      </div>
+      <div class="card glass">
+        <h3>Latest commit</h3>
+        <div class="latest-commit" id="latestCommit"><span class="muted">No commits yet</span></div>
       </div>
     </div>
   </div>
 
 <script>
 const API = '/api';
-let state = { tree: [], commits: [], branch: null };
 
 async function api(path) {
   const res = await fetch(API + path);
@@ -147,12 +262,18 @@ function switchTab(name) {
   });
 }
 
+function countFiles(nodes) {
+  let n = 0;
+  nodes.forEach(node => { n += node.type === 'file' ? 1 : countFiles(node.children || []); });
+  return n;
+}
+
 function renderTree(nodes, container, depth) {
   nodes.forEach(node => {
     const el = document.createElement('div');
     el.className = 'tree-node ' + (node.type === 'dir' ? 'dir' : 'file');
-    el.style.paddingLeft = (20 + depth * 16) + 'px';
-    el.innerHTML = `<span class="icon">${node.type === 'dir' ? '▸' : '·'}</span>${node.name}`;
+    el.style.paddingLeft = (16 + depth * 15) + 'px';
+    el.innerHTML = `<span class="icon">${node.type === 'dir' ? '▸' : '◇'}</span><span class="name">${escapeHtml(node.name)}</span>`;
     if (node.type === 'file') {
       el.onclick = () => openFile(node, el);
     } else {
@@ -178,9 +299,14 @@ async function openFile(node, el) {
   switchTab('code');
   document.getElementById('codePath').textContent = node.name;
   document.getElementById('codeContent').textContent = 'loading…';
+  document.getElementById('codeGutter').innerHTML = '';
   const data = await api('/file?hash=' + node.hash);
   document.getElementById('codeSize').textContent = data.size + ' bytes';
-  document.getElementById('codeContent').textContent = data.binary ? '<binary file>' : data.content;
+  const content = data.binary ? '<binary file>' : data.content;
+  document.getElementById('codeContent').textContent = content;
+  const lineCount = data.binary ? 1 : Math.max(content.split('\n').length, 1);
+  document.getElementById('codeGutter').innerHTML =
+    Array.from({length: lineCount}, (_, i) => `<span>${i + 1}</span>`).join('');
 }
 
 function timeAgo(ts) {
@@ -202,10 +328,10 @@ function renderCommits(commits) {
     const row = document.createElement('div');
     row.className = 'commit-row';
     row.innerHTML = `
-      <div class="commit-graph"><div class="node"></div></div>
+      <div class="commit-graph"><div class="node"></div><div class="line"></div></div>
       <div class="commit-body">
         <div class="commit-msg">${escapeHtml(c.message.split('\n')[0])}</div>
-        <div class="commit-meta"><span class="commit-hash">${c.hash.slice(0,7)}</span> · ${escapeHtml(c.author)} · ${timeAgo(c.timestamp)}</div>
+        <div class="commit-meta"><span class="commit-hash">${c.hash.slice(0,7)}</span> &nbsp;${escapeHtml(c.author)} &nbsp;·&nbsp; ${timeAgo(c.timestamp)}</div>
       </div>`;
     row.onclick = () => showCommitDiff(c.hash);
     list.appendChild(row);
@@ -238,6 +364,7 @@ async function showCommitDiff(hash) {
     html += f.diff.slice(2).map(renderDiffLine).join('');
   });
   panel.innerHTML = html;
+  panel.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
 function renderStatus(s) {
@@ -262,10 +389,15 @@ function renderEmpty() {
   document.getElementById('fileTree').innerHTML = '<div class="tree-node muted">no repo</div>';
   document.querySelector('.main').innerHTML = `
     <div class="empty-state">
-      <span class="logo">❯ scrinex</span>
-      <p>No repository found at this path yet.</p>
+      <div class="mark">❯</div>
+      <h2>No repository found</h2>
       <p>Run <code>nex init</code>, then <code>nex add .</code> and <code>nex commit -m "..."</code> in your project folder.</p>
     </div>`;
+  document.querySelector('.rightcol').style.display = 'none';
+}
+
+function countChanges(s) {
+  return (s.staged?.length || 0) + (s.unstaged?.length || 0) + (s.untracked?.length || 0) + (s.deleted?.length || 0);
 }
 
 async function refreshAll() {
@@ -275,6 +407,8 @@ async function refreshAll() {
     return;
   }
   document.getElementById('branchName').textContent = status.branch;
+  document.getElementById('repoName').textContent = (status.repo_path || '').split('/').filter(Boolean).pop() || 'repo';
+  document.getElementById('statChanges').textContent = countChanges(status);
   renderStatus(status);
 
   const treeData = await api('/tree');
@@ -284,11 +418,27 @@ async function refreshAll() {
   } else {
     renderTree(treeData.nodes, document.getElementById('fileTree'), 0);
   }
+  const fc = countFiles(treeData.nodes);
+  document.getElementById('fileCount').textContent = fc;
+  document.getElementById('statFiles').textContent = fc;
+
+  const branchData = await api('/branches');
+  document.getElementById('statBranches').textContent = (branchData.branches || []).length;
 
   const logData = await api('/log?n=50');
   renderCommits(logData.commits);
+  document.getElementById('statCommits').textContent = logData.commits.length;
 
-  document.getElementById('updatedAt').textContent = 'updated ' + new Date().toLocaleTimeString();
+  const latest = document.getElementById('latestCommit');
+  if (logData.commits.length) {
+    const c = logData.commits[0];
+    latest.innerHTML = `<div class="msg">${escapeHtml(c.message.split('\n')[0])}</div>
+      <div class="meta"><span class="commit-hash">${c.hash.slice(0,7)}</span> · ${timeAgo(c.timestamp)}</div>`;
+  } else {
+    latest.innerHTML = '<span class="muted">No commits yet</span>';
+  }
+
+  document.getElementById('updatedAt').textContent = new Date().toLocaleTimeString();
 }
 
 refreshAll();
