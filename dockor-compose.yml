@@ -1,0 +1,17 @@
+# One-command way to run the Scrinex portal against a repo on the host,
+# without thinking about volume-mount syntax each time.
+#
+# Usage:
+#   cd /path/to/your/repo        <- the repo you want to browse
+#   REPO_DIR=. docker compose -f /path/to/nex-tool/docker-compose.yml up
+#
+# Or just edit REPO_DIR below to point at a fixed path and run
+# `docker compose up` with no env var.
+services:
+  scrinex:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${REPO_DIR:-.}:/workspace
+    command: ["python3", "server.py", "/workspace", "8000"]
