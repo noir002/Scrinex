@@ -12,7 +12,12 @@ web portal that visualizes the repo live.
 - `scrinex/landing.html` — entry page: profile card, live repo stats via API, rain/glass visual theme
 - `scrinex/index.html` — repo browser: file tree (with staged/modified/untracked status dots), commit history, diffs, changes tab
 - `install.sh` / `install.ps1` — optional: install `nex` as a bare CLI command
-- `Dockerfile` / `docker-compose.yml` — optional: containerized run, only useful if the host already has Docker
+- `Dockerfile` / `docker-compose.yml` — containerized run; image bakes in `demoRepo/` so a registry pull has something to show with no volume mount
+- `tests/test_pygit_core.py` — stdlib `unittest` suite covering `pygit_core.py` (no pytest/pip dep, run via `python3 -m unittest discover -s tests`)
+- `ruff.toml` — CI-only lint config, scoped to real bugs (`E9`, `F`) not style opinions; ruff itself is never a runtime dependency of the app
+- `.github/workflows/ci.yml` — lint + test + docker build on every push/PR
+- `.github/workflows/cd.yml` — on push to `main`: builds + pushes the image to GHCR (`ghcr.io/noir002/scrinex`), then pings Render's deploy hook (`RENDER_DEPLOY_HOOK_URL` secret)
+- `render.yaml` — Render Blueprint; deploys the GHCR image as a web service
 
 ## Design constraints (don't violate these silently)
 - Repo state lives entirely in `.nexgit/` (objects/, refs/heads/, HEAD, index, config.json) — mirrors real Git's layout but is our own format, not git-compatible.
@@ -23,6 +28,7 @@ web portal that visualizes the repo live.
 - Diff colors (green/add, red/delete) are a fixed convention — don't retheme those even if reskinning the UI. Everything else (accent, glass, brand) is currently a monochrome silver/black "vault" theme.
 
 ## Conventions
-- Pure Python stdlib only — no pip installs, no external runtime deps.
+- Pure Python stdlib only — no pip installs, no external runtime deps. (CI-only tooling like `ruff` and GitHub Actions itself is fine; it never ships in the Docker image.)
 - Single-file HTML (inline CSS/JS) for both Scrinex pages — no build step, no bundler.
-- Test changes by actually running: `nex init`, `add`, `commit`, then `server.py . <port>` and hitting the real API endpoints, not just reading the code.
+- Test changes by actually running: `nex init`, `add`, `commit`, then `server.py . <port>` and hitting the real API endpoints, not just reading the code. Also run `python3 -m unittest discover -s tests` before pushing — it's what CI gates on.
+- `server.py`'s `REPO_PATH`/`PORT` prefer CLI args, falling back to `NEX_REPO_PATH`/`PORT` env vars — this is how the Docker image and Render deployment configure it without changing local invocation (`python3 server.py . 8000` still works unchanged).

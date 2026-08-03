@@ -1,5 +1,9 @@
 # nex + Scrinex — a working Git-like VCS with a web portal
 
+[![CI](https://github.com/noir002/Scrinex/actions/workflows/ci.yml/badge.svg)](https://github.com/noir002/Scrinex/actions/workflows/ci.yml)
+[![CD](https://github.com/noir002/Scrinex/actions/workflows/cd.yml/badge.svg)](https://github.com/noir002/Scrinex/actions/workflows/cd.yml)
+[![GHCR image](https://img.shields.io/badge/ghcr.io-noir002%2Fscrinex-blue?logo=docker)](https://github.com/noir002/Scrinex/pkgs/container/scrinex)
+
 Three pieces, one shared source of truth (the `.nexgit/` folder in your project):
 
 - **`nex.py`** — the CLI (`nex init`, `add`, `commit`, `push`, `log`, `status`, `diff`, `branch`, `checkout`, `remote`)
@@ -92,6 +96,87 @@ then open `http://localhost:8000` in whatever browser is on that machine. No adm
 - `remote add`, `push` (local-path remote, object-copy based)
 - API: `/api/status`, `/api/tree`, `/api/file`, `/api/log`, `/api/branches`, `/api/commit/<hash>`, `/api/commit/<hash>/diff`, `/api/diff/working`, `/api/remotes`
 - Scrinex UI: file browser (click to view content), commit history (click for diff), live status/changes tab, auto-refresh
+
+## Running with Docker
+
+Pure-stdlib means the Docker image needs no `pip install` step either — it's
+just Python plus the project's own files.
+
+```bash
+docker build -t scrinex .
+docker run --rm -p 8000:8000 scrinex
+```
+
+That runs the image against a small demo repo baked in at build time (see
+`Dockerfile`), so `http://localhost:8000` shows something immediately with
+no setup. To browse a repo on your own machine instead, bind-mount it over
+`/workspace`:
+
+```bash
+docker run --rm -p 8000:8000 -v "$(pwd)":/workspace scrinex
+```
+
+or the equivalent one-liner via Compose:
+
+```bash
+REPO_DIR=. docker compose up --build
+```
+
+`REPO_DIR` defaults to the current directory if unset.
+
+## CI/CD pipeline
+
+Two GitHub Actions workflows automate everything from "push" to "live":
+
+- **[`ci.yml`](.github/workflows/ci.yml)** — on every push/PR to `main`: lints
+  with [ruff](https://docs.astral.sh/ruff/) (config in `ruff.toml`, scoped to
+  real bugs — undefined/unused names — not style opinions), runs the
+  stdlib `unittest` suite in `tests/`, and confirms the Docker image builds.
+  Nothing here is pushed anywhere; it's the gate the CD workflow builds on.
+- **[`cd.yml`](.github/workflows/cd.yml)** — on every push to `main`: re-runs
+  lint + tests, builds the Docker image, pushes it to
+  [GitHub Container Registry](https://github.com/noir002/Scrinex/pkgs/container/scrinex)
+  as `ghcr.io/noir002/scrinex:latest` and `:<commit-sha>`, then calls Render's
+  deploy hook so the live service redeploys with the new image.
+
+Both workflows use the ambient `GITHUB_TOKEN` for GHCR auth — no registry
+secrets to manage. The only secret CD needs is `RENDER_DEPLOY_HOOK_URL`
+(see below); if it isn't set, CD still builds and publishes the image and
+just skips the redeploy step.
+
+### Pulling the published image directly
+
+```bash
+docker pull ghcr.io/noir002/scrinex:latest
+docker run --rm -p 8000:8000 ghcr.io/noir002/scrinex:latest
+```
+
+> GHCR packages are private by default. To let `docker pull` (or Render)
+> fetch it anonymously, open the package's settings on GitHub
+> ("Package settings" → "Change visibility") and set it to **Public**.
+
+## Deploying to Render
+
+Render hosts the GHCR image directly — no source build on Render's side.
+One-time setup (the account/service-connection step has to be done by a
+human in Render's dashboard, this repo can't do it for you):
+
+1. Make sure the `ghcr.io/noir002/scrinex` package is **public** (see above),
+   or add GHCR registry credentials in Render's dashboard if you'd rather
+   keep it private.
+2. In Render: **New → Blueprint**, point it at this repo/branch — Render
+   reads [`render.yaml`](render.yaml) and creates the web service from the
+   `ghcr.io/noir002/scrinex:latest` image automatically. (Alternatively:
+   **New → Web Service → Existing Image**, paste the same image URL.)
+3. Render injects its own `$PORT`; `server.py` already reads it as a
+   fallback (see `server.py`), so no code changes are needed.
+4. Once the service exists, open **Settings → Deploy Hook**, copy the URL,
+   and add it to this GitHub repo as an Actions secret named
+   `RENDER_DEPLOY_HOOK_URL` (**Settings → Secrets and variables → Actions**).
+
+After that, the loop is fully automatic: **push to `main` → CI/CD builds +
+publishes the image to GHCR → Render redeploys the new image** — no manual
+steps for ongoing changes.
 
 ## Known gaps (deliberately out of scope for this prototype)
 

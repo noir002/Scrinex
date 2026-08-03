@@ -1,0 +1,5 @@
+# Pinned so CI lint results don't depend on whatever ruff defaults or
+# machine-local config happen to be active -- just real bugs (unused
+# names, undefined names, syntax issues), not style opinions.
+[lint]
+select = ["E9", "F"]

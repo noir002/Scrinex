@@ -58,7 +58,7 @@ def main():
 
     sub.add_parser("status", help="Show working tree status")
 
-    p_diff = sub.add_parser("diff", help="Show staged changes vs HEAD")
+    sub.add_parser("diff", help="Show staged changes vs HEAD")
 
     p_remote = sub.add_parser("remote", help="Manage remotes")
     remote_sub = p_remote.add_subparsers(dest="remote_command")

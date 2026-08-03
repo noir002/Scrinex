@@ -1,0 +1,17 @@
+# Render Blueprint -- lets you spin up the service via "New > Blueprint" in
+# the Render dashboard pointed at this repo, instead of clicking through a
+# manual web-service form. See README "Deploying to Render" for the
+# one-time setup steps (Blueprint creation, making the GHCR package
+# public or adding registry credentials, grabbing the deploy hook URL).
+services:
+  - type: web
+    name: scrinex
+    runtime: image
+    image:
+      url: ghcr.io/noir002/scrinex:latest
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: NEX_REPO_PATH
+        value: /workspace

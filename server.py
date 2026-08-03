@@ -13,6 +13,7 @@ Run:  python3 server.py [repo_path] [port]
 """
 from __future__ import annotations
 import json
+import os
 import sys
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -20,8 +21,11 @@ from pathlib import Path
 
 from pygit_core import Repository, Commit
 
-REPO_PATH = sys.argv[1] if len(sys.argv) > 1 else "."
-PORT = int(sys.argv[2]) if len(sys.argv) > 2 else 8000
+# CLI args win when given (so `python3 server.py . 8000` behaves exactly as
+# before); otherwise fall back to env vars, which is how the Docker image /
+# Render deployment configure this without changing the invocation.
+REPO_PATH = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("NEX_REPO_PATH", ".")
+PORT = int(sys.argv[2]) if len(sys.argv) > 2 else int(os.environ.get("PORT", 8000))
 LANDING_FILE = Path(__file__).parent / "scrinex" / "landing.html"
 FRONTEND_FILE = Path(__file__).parent / "scrinex" / "index.html"
 
