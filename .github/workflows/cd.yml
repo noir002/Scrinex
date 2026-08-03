@@ -15,7 +15,10 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  # GHCR requires lowercase repository names; github.repository preserves
+  # the repo's actual casing (noir002/Scrinex), which GHCR rejects -- so
+  # this is hardcoded lowercase to match what render.yaml already expects.
+  IMAGE_NAME: noir002/scrinex
 
 permissions:
   contents: read
