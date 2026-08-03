@@ -369,6 +369,51 @@ class Repository:
                 nodes.append({"name": name, "type": "file", "hash": obj_hash, "mode": mode})
         return nodes
 
+    def _walk_working_dir(self, dir_path: Path, rel_prefix: str = "") -> List[dict]:
+        """Recursively list the ACTUAL working directory, regardless of git state."""
+        nodes = []
+        try:
+            entries = sorted(dir_path.iterdir(), key=lambda p: (p.is_file(), p.name.lower()))
+        except FileNotFoundError:
+            return nodes
+        for entry in entries:
+            if entry.name in (".nexgit", ".git", "__pycache__"):
+                continue
+            rel_path = f"{rel_prefix}{entry.name}"
+            if entry.is_dir():
+                children = self._walk_working_dir(entry, rel_path + "/")
+                if children:  # skip empty dirs from the tree view
+                    nodes.append({"name": entry.name, "type": "dir", "path": rel_path, "children": children})
+            elif entry.is_file():
+                nodes.append({"name": entry.name, "type": "file", "path": rel_path})
+        return nodes
+
+    def build_working_tree(self) -> List[dict]:
+        """Nested [{name, type, path, status, children?}] of every file currently on
+        disk — this is what the file browser should render, so a file never appears
+        to 'vanish' just because it hasn't been staged or committed yet."""
+        s = self.status()
+        staged_paths = {i["path"] for i in s["staged"]}
+        unstaged_paths = set(s["unstaged"])
+        untracked_paths = set(s["untracked"])
+
+        def annotate(nodes: List[dict]) -> List[dict]:
+            for n in nodes:
+                if n["type"] == "file":
+                    if n["path"] in staged_paths:
+                        n["status"] = "staged"
+                    elif n["path"] in unstaged_paths:
+                        n["status"] = "modified"
+                    elif n["path"] in untracked_paths:
+                        n["status"] = "untracked"
+                    else:
+                        n["status"] = "tracked"
+                else:
+                    annotate(n["children"])
+            return nodes
+
+        return annotate(self._walk_working_dir(self.path))
+
     def get_files_from_tree_recursive(self, tree_hash: str, prefix: str = "") -> set:
         files = set()
         try:

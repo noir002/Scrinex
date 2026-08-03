@@ -98,29 +98,38 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json({"commits": repo.log(max_count)})
 
             elif route == "/api/tree":
-                tree_hash, commit_hash = head_tree_hash(repo)
-                if not tree_hash:
-                    # nothing committed yet -- show the staged index instead
-                    index = repo.load_index()
-                    nodes = [{"name": p, "type": "file", "hash": h, "mode": "100644"} for p, h in index.items()]
-                    self._send_json({"nodes": nodes, "commit": None, "source": "index"})
-                else:
-                    nodes = repo.build_nested_tree(tree_hash)
-                    self._send_json({"nodes": nodes, "commit": commit_hash, "source": "commit"})
+                # Always reflect the real working directory, not just what's staged
+                # or committed -- otherwise files "disappear" from the browser the
+                # moment you `nex add` a single other file (they were never gone,
+                # the old view just never showed unstaged/uncommitted files at all).
+                _, commit_hash = head_tree_hash(repo)
+                nodes = repo.build_working_tree()
+                self._send_json({"nodes": nodes, "commit": commit_hash, "source": "working"})
 
             elif route == "/api/file":
-                blob_hash = params.get("hash", [None])[0]
-                if not blob_hash:
-                    self._send_json({"error": "hash query param required"}, 400)
-                    return
-                obj = repo.load_object(blob_hash)
+                rel_path = params.get("path", [None])[0]
+                if rel_path:
+                    full_path = (repo.path / rel_path).resolve()
+                    if repo.path not in full_path.parents and full_path != repo.path:
+                        self._send_json({"error": "invalid path"}, 400)
+                        return
+                    if not full_path.is_file():
+                        self._send_json({"error": "file not found"}, 404)
+                        return
+                    content_bytes = full_path.read_bytes()
+                else:
+                    blob_hash = params.get("hash", [None])[0]
+                    if not blob_hash:
+                        self._send_json({"error": "path or hash query param required"}, 400)
+                        return
+                    content_bytes = repo.load_object(blob_hash).content
                 try:
-                    content = obj.content.decode("utf-8")
+                    content = content_bytes.decode("utf-8")
                     binary = False
                 except UnicodeDecodeError:
                     content = ""
                     binary = True
-                self._send_json({"content": content, "binary": binary, "size": len(obj.content)})
+                self._send_json({"content": content, "binary": binary, "size": len(content_bytes)})
 
             elif route.startswith("/api/commit/"):
                 rest = route[len("/api/commit/"):]

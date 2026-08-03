@@ -112,7 +112,11 @@
   .tree-node.active{background:rgba(127,216,208,0.08);color:var(--accent-glow);border-left-color:var(--accent);}
   .tree-node .icon{color:var(--text-faint);font-size:11px;width:12px;text-align:center;flex-shrink:0;}
   .tree-node.dir .icon{color:var(--amber);}
-  .tree-node .name{overflow:hidden;text-overflow:ellipsis;}
+  .tree-node .name{overflow:hidden;text-overflow:ellipsis;flex:1;}
+  .tree-node .status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-left:6px;}
+  .tree-node .status-dot.staged{background:var(--accent);box-shadow:0 0 5px var(--accent);}
+  .tree-node .status-dot.modified{background:var(--amber);}
+  .tree-node .status-dot.untracked{background:var(--text-faint);}
 
   .main{min-width:0;}
   .tabs{display:inline-flex;gap:3px;margin-bottom:16px;padding:4px;border-radius:11px;}
@@ -273,7 +277,9 @@ function renderTree(nodes, container, depth) {
     const el = document.createElement('div');
     el.className = 'tree-node ' + (node.type === 'dir' ? 'dir' : 'file');
     el.style.paddingLeft = (16 + depth * 15) + 'px';
-    el.innerHTML = `<span class="icon">${node.type === 'dir' ? '▸' : '◇'}</span><span class="name">${escapeHtml(node.name)}</span>`;
+    const dot = (node.type === 'file' && node.status && node.status !== 'tracked')
+      ? `<span class="status-dot ${node.status}" title="${node.status}"></span>` : '';
+    el.innerHTML = `<span class="icon">${node.type === 'dir' ? '▸' : '◇'}</span><span class="name">${escapeHtml(node.name)}</span>${dot}`;
     if (node.type === 'file') {
       el.onclick = () => openFile(node, el);
     } else {
@@ -297,10 +303,10 @@ async function openFile(node, el) {
   document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
   el.classList.add('active');
   switchTab('code');
-  document.getElementById('codePath').textContent = node.name;
+  document.getElementById('codePath').textContent = node.path;
   document.getElementById('codeContent').textContent = 'loading…';
   document.getElementById('codeGutter').innerHTML = '';
-  const data = await api('/file?hash=' + node.hash);
+  const data = await api('/file?path=' + encodeURIComponent(node.path));
   document.getElementById('codeSize').textContent = data.size + ' bytes';
   const content = data.binary ? '<binary file>' : data.content;
   document.getElementById('codeContent').textContent = content;
