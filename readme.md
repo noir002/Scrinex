@@ -8,12 +8,13 @@ Three pieces, one shared source of truth (the `.nexgit/` folder in your project)
 
 The CLI and the portal never talk to each other directly — the CLI writes to `.nexgit/`, and the portal just re-reads it on every request (it auto-refreshes every 4s). Run a command, refresh the page (or wait), see it reflected.
 
-## Quick start
+## Quick start (works the same on macOS / Windows / Linux)
+
+The whole project is pure-Python stdlib — no `pip install` needed, no compiled dependencies. The **only** requirement on the presentation machine is Python 3 itself. This is the one command that's guaranteed to work no matter whose laptop you're on, so it's the fallback to fall back on if anything below misbehaves:
 
 ```bash
-# 1. Put nex.py, pygit_core.py, server.py, and scrinex/ in (or alongside) your project folder
-cd my-project
-cp /path/to/nex.py /path/to/pygit_core.py .
+git clone https://github.com/<your-username>/<your-repo>.git
+cd <your-repo>
 
 python3 nex.py init
 python3 nex.py add .
@@ -26,10 +27,29 @@ python3 nex.py add .
 python3 nex.py commit -m "second commit"
 ```
 
-Optionally make it feel like a real command:
+On Windows, if `python3` isn't recognized, use `python` instead (Windows' python.org installer registers the command as `python`, not `python3`) — everything else is identical:
+```powershell
+python nex.py init
+python nex.py add .
+python nex.py commit -m "initial commit"
+```
+
+### Making `nex` a bare command (optional, per-OS)
+
+This is nice for a live demo (`nex add .` instead of `python3 nex.py add .`) but is **OS-specific setup you'd have to redo on someone else's machine** — so for presenting on an unfamiliar device, skip this section entirely and just use `python3 nex.py ...` above, which needs zero setup.
+
+If you do want it on a machine you control:
+
+**macOS / Linux:**
 ```bash
 chmod +x nex.py
-alias nex="python3 $(pwd)/nex.py"   # now: nex init, nex add ., nex commit -m "..."
+sudo ln -s "$(pwd)/nex.py" /usr/local/bin/nex   # or: alias nex="python3 $(pwd)/nex.py"
+```
+
+**Windows (PowerShell):**
+```powershell
+Set-Alias nex "python $PWD\nex.py"    # current session only
+# For a persistent alias, add that line to your PowerShell $PROFILE instead
 ```
 
 ## Push (to a local "remote")
@@ -43,13 +63,27 @@ python3 nex.py push origin main
 
 ## Run the Scrinex portal
 
+From inside the cloned repo (no extra copying needed if `server.py` and `scrinex/` are already in the repo):
 ```bash
-cp -r /path/to/server.py /path/to/scrinex .
 python3 server.py . 8000
 ```
-Then open **http://localhost:8000** — you'll see the file tree, commit history (click a commit for its diff), and a "Changes" tab mirroring `nex status`.
+On Windows, `python server.py . 8000` if `python3` isn't recognized.
 
-`server.py` takes the repo path and port as args: `python3 server.py /path/to/repo 8000`.
+Then open **http://localhost:8000** in a browser — you'll see the file tree, commit history (click a commit for its diff), and a "Changes" tab mirroring `nex status`.
+
+`server.py` takes the repo path and port as args, so you can also point it at a separate demo folder: `python3 server.py /path/to/demo-repo 8000`.
+
+### Presenting on an unfamiliar / borrowed machine
+
+Since this needs nothing beyond Python 3 (check with `python3 --version` or `python --version`), the safest presentation flow on any OS is:
+
+```bash
+git clone <your-repo-url>
+cd <your-repo>
+python3 nex.py init && python3 nex.py add . && python3 nex.py commit -m "demo commit"
+python3 server.py . 8000
+```
+then open `http://localhost:8000` in whatever browser is on that machine. No admin rights, no PATH edits, no symlinks required — just `git clone` + `python3`.
 
 ## What's implemented (the "basic/core" scope)
 
