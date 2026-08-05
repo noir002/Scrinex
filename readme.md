@@ -178,6 +178,34 @@ After that, the loop is fully automatic: **push to `main` → CI/CD builds +
 publishes the image to GHCR → Render redeploys the new image** — no manual
 steps for ongoing changes.
 
+## Trying nex against your own files
+
+The live/deployed Scrinex instance only ever shows one server's snapshot of
+one repo — a browser page has no way to reach into a visitor's local
+filesystem, so it can't run `nex` against *your* files no matter how it's
+built. The landing page's "Run it on your own machine" section links to a
+downloadable, self-contained bundle for that:
+
+```
+http://<host>/nex-portable.zip
+```
+
+served directly by `server.py` (see `DOWNLOAD_FILE` / the `/nex-portable.zip`
+route). It's a zip of `nex.py`, `pygit_core.py`, `server.py`, `scrinex/`,
+`README.md`, and the install scripts — extract it and follow the Quick
+start section above.
+
+That zip is a **checked-in build artifact**, not generated at runtime, so it
+can go stale. After changing `nex.py`, `pygit_core.py`, `server.py`, or
+`scrinex/*.html`, regenerate it before committing:
+
+```bash
+./build_portable_zip.sh
+```
+
+The Dockerfile copies this file into the image, so the download route also
+works on the deployed/Render instance — it isn't just a local convenience.
+
 ## Known gaps (deliberately out of scope for this prototype)
 
 - No merge/conflict resolution — checkout just swaps the tree, no three-way merge

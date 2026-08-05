@@ -8,7 +8,7 @@ WORKDIR /nex
 
 # The tool's own code (does NOT contain your repo -- that's mounted at
 # runtime for local/docker-compose use; see docker-compose.yml).
-COPY nex.py pygit_core.py server.py ./
+COPY nex.py pygit_core.py server.py nex-portable.zip ./
 COPY scrinex ./scrinex
 
 # A small demo repo baked into the image so a registry/hosted deployment

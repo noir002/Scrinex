@@ -148,6 +148,10 @@
   .term-box .chevron{color:var(--chrome-hi);opacity:0.8;margin-right:8px;}
   .term-box .hi{color:var(--chrome-hi);}
 
+  .live-note{font-family:var(--mono);font-size:11px;color:var(--text-faint);margin:16px 0 0;line-height:1.6;}
+  .live-note a{color:var(--text-dim);text-decoration:underline;text-decoration-color:var(--edge);}
+  .live-note a:hover{color:var(--chrome-hi);}
+
   /* ---------- architecture / features ---------- */
   .section-head{text-align:center;margin-bottom:8px;}
   .section-head h2{font-family:var(--mono);font-size:26px;text-transform:uppercase;letter-spacing:-0.01em;color:var(--chrome-hi);margin:0 0 10px;text-shadow:0 0 16px rgba(255,255,255,0.15);}
@@ -243,6 +247,24 @@
       <div class="term-box" id="termBox">
         <div><span class="chevron">❯</span>nex log -n 1</div>
         <div>waiting for repository…</div>
+      </div>
+      <p class="live-note">This reflects the repo running on this server as of its last deploy — it won't show changes made on your own machine. To try nex against your own files, <a href="/nex-portable.zip">download it</a> and run it locally.</p>
+    </section>
+
+    <section class="panel glass" id="get-nex">
+      <div class="panel-top">
+        <div class="panel-title"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"></path></svg>Run it on your own machine</div>
+      </div>
+      <p class="hero-sub" style="margin:0 0 18px;">This live demo is one server's snapshot of one repo — it can't reach your filesystem, and nothing you do here touches your own projects. To actually use nex on your own files, grab the portable bundle below (pure Python stdlib, nothing to install):</p>
+      <div class="term-box">
+        <div><span class="chevron">❯</span>unzip nex-portable.zip &amp;&amp; cd nex-portable</div>
+        <div><span class="chevron">❯</span>python3 nex.py init</div>
+        <div><span class="chevron">❯</span>python3 nex.py add .</div>
+        <div><span class="chevron">❯</span>python3 nex.py commit -m "first commit"</div>
+      </div>
+      <div class="hero-actions" style="margin-top:20px;">
+        <a class="btn btn-primary glow-hover" href="/nex-portable.zip" download><span>Download nex</span><span class="arrow">↓</span></a>
+        <a class="btn btn-secondary" href="#architecture"><span>How it works</span></a>
       </div>
     </section>
 

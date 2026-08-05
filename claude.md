@@ -18,6 +18,8 @@ web portal that visualizes the repo live.
 - `.github/workflows/ci.yml` — lint + test + docker build on every push/PR
 - `.github/workflows/cd.yml` — on push to `main`: builds + pushes the image to GHCR (`ghcr.io/noir002/scrinex`), then pings Render's deploy hook (`RENDER_DEPLOY_HOOK_URL` secret)
 - `render.yaml` — Render Blueprint; deploys the GHCR image as a web service
+- `nex-portable.zip` — checked-in build artifact (not generated at runtime): nex.py/pygit_core.py/server.py/scrinex/README/install scripts, zipped. Served by `server.py` at `/nex-portable.zip` so visitors to the hosted demo (which can't touch their filesystem) can download and run nex locally. Regenerate with `./build_portable_zip.sh` after changing any of the files it bundles — it will silently go stale otherwise.
+- `build_portable_zip.sh` — regenerates `nex-portable.zip` from current source; run before committing changes to the files it bundles
 
 ## Design constraints (don't violate these silently)
 - Repo state lives entirely in `.nexgit/` (objects/, refs/heads/, HEAD, index, config.json) — mirrors real Git's layout but is our own format, not git-compatible.
